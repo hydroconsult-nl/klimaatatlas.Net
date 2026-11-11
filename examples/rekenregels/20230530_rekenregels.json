@@ -1,0 +1,130 @@
+{
+	"scenarios":["2014","2085"],
+	"features_dataset":{
+		"_comment":"this attribute describes the water area polygons",
+		"id":"watervlakken",
+		"data_type":"polygons",
+		"storage_type":"shapefile",
+		"path":"c:\\GITHUB\\klimaatatlas\\GIS\\Watervlakken Plus2.shp",
+		"fields":[
+			{"fieldtype":"id", "fieldname":"CODE"}, 
+			{"fieldtype":"featureidx", "fieldname":"FEATUREIDX"}, 
+			{"fieldtype":"depth", "fieldname":"WATERDIEPT"}, 
+			{"fieldtype":"deadend", "fieldname":"doodlopend"} 
+		]			
+	},
+	"datasets":[
+		{
+			"_comment":"this attribute describes where the water quality statistics as derived from SOBEK can be found",
+			"id":"sobek_results",
+			"data_type":"percentiles",
+			"storage_type":"sqlite",
+			"path":"c:\\GITHUB\\klimaatatlas\\data\\database.db",
+			"tablename":"WQPOLYGONSTATISTICS",
+			"fields":[
+				{"fieldtype":"origin", "fieldname":"DATASOURCE", "selection":["SOBEK"]}, 
+				{"fieldtype":"scenario", "fieldname":"SCENARIO", "selection":["2014", "2085"]}, 
+				{"fieldtype":"parameter_name", "fieldname":"SUBSTANCE", "selection":["OXY", "Cl", "Nt", "Pt", "ModTemp", "ResTim"]}, 
+				{"fieldtype":"featureidx", "fieldname":"FEATUREIDX"}, 
+				{"fieldtype":"percentile", "fieldname":"PERCENTILE"},
+				{"fieldtype":"datavalue", "fieldname":"DATAVALUE"} 
+			]			
+		},
+		{
+			"_comment":"dit bestand bevat tijdreeksen met temperatuur voor diverse soorten waterlichamen",
+			"id":"temperatuur_waterlichamen",
+			"data_type":"timeseries",
+			"storage_type":"excel",
+			"path":"c:\\GITHUB\\klimaatatlas\\data\\maxtemp.xlsx",
+			"tablename":"maxtemp",
+			"fields":[
+				{"fieldtype":"datetime", "fieldname":"datum"}, 
+				{"fieldtype":"watertype", "fieldname":"watertype"}, 
+				{"fieldtype":"datavalue", "fieldname":"Temperatuur"}
+			]				
+		}
+	],
+	"classifications":[
+		{
+			"id":"mediaan_stikstof",
+			"classes":[
+				{"lbound":0, "ubound":10, "penalty":0, "result_text":""},
+				{"lbound":10, "ubound":15, "penalty":1, "result_text":"mediaan stikstof tussen 10 en 15 mg/l"},
+				{"lbound":15, "ubound":20, "penalty":2, "result_text":"mediaan stikstof tussen 15 en 20 mg/l"},
+				{"lbound":20, "ubound":25, "penalty":4, "result_text":"mediaan stikstof tussen 20 en 25 mg/l"},
+				{"lbound":25, "ubound":999, "penalty":6, "result_text":"mediaan stikstof hoger dan 25 mg/l"}
+			]
+		},
+		{
+			"id":"waterdiepte",
+			"classes":[
+				{"lbound":0, "ubound":0.2, "penalty":5, "result_text":"waterdiepte tussen 0 en 20 cm"},
+				{"lbound":0.2, "ubound":0.4, "penalty":4, "result_text":"waterdiepte tussen 20 en 40 cm"},
+				{"lbound":0.4, "ubound":0.6, "penalty":3, "result_text":"waterdiepte tussen 40 en 60 cm"},
+				{"lbound":0.6, "ubound":1.0, "penalty":2, "result_text":"waterdiepte tussen 60 en 100 cm"},
+				{"lbound":1.0, "ubound":1.5, "penalty":1, "result_text":"waterdiepte tussen 1.0 en 1.5 m"},
+				{"lbound":1.5, "ubound":999, "penalty":0, "result_text":""}
+			]
+		}
+	],
+	"rules":[
+		{
+			"order":1,
+			"apply":false,
+			"name":"Mediaan Stikstof Totaal",
+			"input_dataset":"sobek_results",
+			"subset":[
+				{"fieldtype":"origin", "values":["SOBEK"]},
+				{"fieldtype":"parameter_name", "values":["Nt"]}				
+			],
+			"filter":{
+				"field_type":"percentile",
+				"evaluation":"=",
+				"value":50
+			},
+			"rating":{
+				"method":"classification", 
+				"field_type":"datavalue",
+				"classification_id":"mediaan_stikstof"
+			},			
+			"origin":"rekenregels",
+			"scenarios": ["2014","2085"]			
+		},
+		{
+			"order":2,
+			"apply":true,
+			"name":"Waterdiepte",
+			"input_dataset":"watervlakken",
+			"input_field":"depth",
+			"rating":{
+				"method":"classification", 
+				"field_type":"depth",
+				"classification_id":"waterdiepte"
+			},			
+			"origin":"rekenregels",
+			"scenarios": ["2014","2085"]			
+		},
+		{
+			"order":3,
+			"apply":true,
+			"name":"Doodlopend",
+			"input_dataset":"watervlakken",
+			"input_field":"doodlopend",
+			"filter":{
+				"field_type":"deadend",
+				"evaluation":"=",
+				"value":"ja"
+			},
+			"rating":{
+				"method":"constant",
+				"penalty":2,
+				"result_text":"watervlak doodlopend."
+			},			
+			"origin":"rekenregels",
+			"scenarios": ["2014","2085"]			
+		}
+	],
+	"results":{
+		"dataset":"watervlakken"
+	}		
+}
