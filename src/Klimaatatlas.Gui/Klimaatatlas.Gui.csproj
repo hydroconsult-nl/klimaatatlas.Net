@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -10,6 +10,10 @@
     <Version>2.0.0</Version>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- For the MSIX package (SetupKlimaatAtlas2): built for win-x64 and self-contained,
+         because an MSIX does not install .NET. Normal builds (no RuntimeIdentifier) are unaffected. -->
+    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <SelfContained Condition="'$(RuntimeIdentifier)' != ''">true</SelfContained>
   </PropertyGroup>
 
   <ItemGroup>
@@ -27,5 +31,35 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Klimaatatlas.Gui.Tests" />
   </ItemGroup>
+
+  <!--
+    Code signing for the Windows installer (setup project SetupKlimaatAtlas, publish profile Installer-win-x64).
+    Signs our own files (Klimaatatlas.exe, Klimaatatlas.dll, Klimaatatlas.Core.dll) with the Certum
+    certificate of Watercommunicatie B.V. (SimplySign must be logged in).
+
+    It runs right after the SDK has computed the list of files to publish, and signs the *source* files
+    of that list (in obj\ and the Core project's bin\). The VS setup project ("Publish Items") packs
+    those source files directly, without running Publish, and `dotnet publish` copies them to PublishDir,
+    so both end up signed.
+    Only for Release + win-x64 (i.e. the installer profile); normal builds and debugging are not affected.
+    Skip it with -p:SignPublishedFiles=false, e.g. on a machine without the certificate.
+  -->
+  <PropertyGroup>
+    <SignPublishedFiles Condition="'$(SignPublishedFiles)' == ''">true</SignPublishedFiles>
+    <SignToolPath Condition="'$(SignToolPath)' == ''">C:\Program Files (x86)\Windows Kits\10\bin\10.0.22621.0\x64\signtool.exe</SignToolPath>
+    <SignCertificateThumbprint Condition="'$(SignCertificateThumbprint)' == ''">D798C22C68365DAD22AA7422DC147DBCE1F5A7A7</SignCertificateThumbprint>
+    <SignTimestampUrl Condition="'$(SignTimestampUrl)' == ''">http://time.certum.pl</SignTimestampUrl>
+  </PropertyGroup>
+
+  <Target Name="SignPublishedFiles" AfterTargets="ComputeResolvedFilesToPublishList"
+          Condition="'$(SignPublishedFiles)' == 'true' and '$(OS)' == 'Windows_NT' and '$(Configuration)' == 'Release' and '$(RuntimeIdentifier)' == 'win-x64' and '$(DesignTimeBuild)' != 'true'">
+    <ItemGroup>
+      <FilesToSign Include="@(ResolvedFileToPublish)"
+                   Condition="'%(ResolvedFileToPublish.RelativePath)' == 'Klimaatatlas.exe' or '%(ResolvedFileToPublish.RelativePath)' == 'Klimaatatlas.dll' or '%(ResolvedFileToPublish.RelativePath)' == 'Klimaatatlas.Core.dll'" />
+    </ItemGroup>
+    <Error Condition="'@(FilesToSign->Count())' != '3'" Text="Expected 3 files to sign, found: @(FilesToSign->'%(RelativePath)')" />
+    <Error Condition="!Exists('$(SignToolPath)')" Text="signtool.exe not found at '$(SignToolPath)'. Install the Windows SDK, set SignToolPath, or publish with -p:SignPublishedFiles=false." />
+    <Exec Command="&quot;$(SignToolPath)&quot; sign /sha1 $(SignCertificateThumbprint) /fd SHA256 /tr $(SignTimestampUrl) /td SHA256 @(FilesToSign->'&quot;%(FullPath)&quot;', ' ')" />
+  </Target>
 
 </Project>

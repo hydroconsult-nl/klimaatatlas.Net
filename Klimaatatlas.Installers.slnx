@@ -1,0 +1,20 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Klimaatatlas.Cli/Klimaatatlas.Cli.csproj" />
+    <Project Path="src/Klimaatatlas.Core/Klimaatatlas.Core.csproj" />
+    <Project Path="src/Klimaatatlas.Gui/Klimaatatlas.Gui.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Klimaatatlas.Core.Tests/Klimaatatlas.Core.Tests.csproj" />
+    <Project Path="tests/Klimaatatlas.Gui.Tests/Klimaatatlas.Gui.Tests.csproj" />
+  </Folder>
+  <Folder Name="/installers/">
+    <Project Path="SetupKlimaatAtlas/SetupKlimaatAtlas.vdproj" Type="Installer">
+      <Build />
+    </Project>
+    <Project Path="SetupKlimaatAtlas2/SetupKlimaatAtlas2.wapproj" Type="c7167f0d-bc9f-4e6e-afe1-012c56b48db5" Id="f5b70bf5-b923-497f-b279-0eb983db00f8">
+      <Platform Project="x64" />
+      <Deploy />
+    </Project>
+  </Folder>
+</Solution>

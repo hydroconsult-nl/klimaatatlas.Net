@@ -94,8 +94,14 @@ zelf, op basis van de GeoPackage-geometrieheader. Wil je toch SpatiaLite gebruik
 
 Benodigd: [.NET 10 SDK](https://dotnet.microsoft.com/download).
 
+Er zijn twee solutions:
+
+* **`Klimaatatlas.slnx`** – de app, de CLI en de tests. Hiermee werk je normaal, ook op macOS en Linux.
+* **`Klimaatatlas.Installers.slnx`** – hetzelfde plus de Windows-installers (MSI en MSIX). Alleen te bouwen
+  met Visual Studio op Windows; zie [RELEASE.md](RELEASE.md).
+
 ```bash
-dotnet test
+dotnet test Klimaatatlas.slnx
 ```
 
 ```bash
