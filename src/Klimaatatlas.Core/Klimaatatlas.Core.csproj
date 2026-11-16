@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <!-- The self-contained win-x64 build of the GUI (MSIX package) also builds this library for win-x64. -->
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
 
   <ItemGroup>

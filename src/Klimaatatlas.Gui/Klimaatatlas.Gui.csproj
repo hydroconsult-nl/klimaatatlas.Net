@@ -10,8 +10,9 @@
     <Version>2.0.0</Version>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
-    <!-- For the MSIX package (SetupKlimaatAtlas2): built for win-x64 and self-contained,
-         because an MSIX does not install .NET. Normal builds (no RuntimeIdentifier) are unaffected. -->
+    <!-- Needed for the MSIX package (SetupKlimaatAtlas2): built for win-x64 and self-contained,
+         because an MSIX does not install .NET. Builds without a RuntimeIdentifier (normal builds,
+         the cross-platform FolderProfile) are unaffected; the MSI profile sets these itself. -->
     <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
     <SelfContained Condition="'$(RuntimeIdentifier)' != ''">true</SelfContained>
   </PropertyGroup>
