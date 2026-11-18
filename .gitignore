@@ -17,3 +17,6 @@ BundleArtifacts/
 
 # personal publish profile (machine-specific signing settings)
 src/Klimaatatlas.Gui/Properties/PublishProfiles/ClickOnceProfile.pubxml
+
+# MSI built by build-release.ps1
+dist/

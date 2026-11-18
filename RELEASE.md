@@ -1,8 +1,38 @@
 # Een nieuwe versie uitbrengen (Windows-installer)
 
-Deze handleiding beschrijft hoe je een **ondertekende MSI** van de Klimaatatlas maakt (§1–6). Het meeste is
-al in de projecten ingericht; per versie zijn het een paar stappen. §7 beschrijft het alternatief: een
-**MSIX-pakket** via de wizard van Visual Studio.
+## Kort: één opdracht
+
+1. Start **SimplySign Desktop** en log in.
+2. Voer in PowerShell in de hoofdmap van de repo uit (met het nieuwe versienummer):
+   ```bash
+   .\build-release.ps1 2.0.1
+   ```
+3. Installeer `dist\Klimaatatlas-2.0.1-x64.msi` één keer zelf en start de Klimaatatlas.
+4. Leg de versie vast; het script toont aan het eind de opdrachten (`git commit`, `git tag`, `git push`).
+
+Het script doet de rest:
+* het zet het versienummer in de GUI en de CLI;
+* het draait de tests;
+* het publiceert de app (self-contained win-x64) en ondertekent `Klimaatatlas.exe` en de eigen dll's;
+* het bouwt de MSI (WiX-project `installer\`) en ondertekent die;
+* het controleert alle handtekeningen.
+
+Visual Studio is daarvoor niet nodig. Is SimplySign niet ingelogd, dan stopt het script meteen met een melding.
+
+Opties:
+* `-NoSign`: een proefbouw zonder ondertekening, niet om te verspreiden;
+* `-SkipTests`: de tests overslaan.
+
+De installer is gemaakt met **WiX Toolset 5**: gratis, MS-RL-licentie, als NuGet-pakket, en te bouwen met `dotnet build`. Hij installeert:
+* in `C:\Program Files\Watercommunicatie B.V\Klimaatatlas`;
+* voor alle gebruikers;
+* met een snelkoppeling in het Startmenu en op het bureaublad.
+
+Hij heeft dezelfde *UpgradeCode* als het oude setup-project. Een nieuwe versie vervangt daardoor automatisch de vorige, ook een versie die met `SetupKlimaatAtlas` is geïnstalleerd. Het versienummer moet daarvoor wel elke keer omhoog. Wijzig de UpgradeCode in `installer\Package.wxs` nooit.
+
+De rest van deze handleiding beschrijft de handmatige route via het setup-project in Visual Studio (§1–6) en het **MSIX-pakket** via de wizard (§7). Die heb je normaal niet meer nodig.
+
+---
 
 > **Open in Visual Studio `Klimaatatlas.Installers.slnx`.** Alleen die solution bevat de installer-projecten
 > (`SetupKlimaatAtlas` voor de MSI, `SetupKlimaatAtlas2` voor de MSIX). Ze zijn alleen met Visual Studio
@@ -16,7 +46,7 @@ Windows toont bij installeren *"Geverifieerde uitgever: Watercommunicatie B.V."*
 
 ---
 
-## 1. Per nieuwe versie
+## 1. Per nieuwe versie (handmatig, in Visual Studio)
 
 1. **Versienummer ophogen** – op drie plekken hetzelfde nummer, bijv. `2.0.1`:
    * `src/Klimaatatlas.Gui/Klimaatatlas.Gui.csproj` → `<Version>2.0.1</Version>`

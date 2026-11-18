@@ -1,0 +1,52 @@
+<!--
+  Klimaatatlas: installs to C:\Program Files\Watercommunicatie B.V.\Klimaatatlas,
+  for all users, with a shortcut in the Start menu and on the desktop.
+
+  UpgradeCode is the same as in the old setup project (SetupKlimaatAtlas.vdproj), so a new
+  version automatically replaces the old one (including 2.0.0 from that project).
+  Never change the UpgradeCode; the version must go up with every release.
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Klimaatatlas"
+           Manufacturer="Watercommunicatie B.V."
+           Version="$(Version)"
+           UpgradeCode="BBABAFA7-7B4B-4470-987B-8DDDDFC07F7A"
+           Scope="perMachine"
+           Language="1043">
+
+    <MajorUpgrade DowngradeErrorMessage="Er is al een nieuwere versie van Klimaatatlas geïnstalleerd." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <StandardDirectory Id="ProgramFiles64Folder">
+      <Directory Id="ManufacturerFolder" Name="Watercommunicatie B.V">
+        <Directory Id="INSTALLFOLDER" Name="Klimaatatlas" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder" />
+    <StandardDirectory Id="DesktopFolder" />
+
+    <Feature Id="Main" Title="Klimaatatlas">
+      <ComponentGroupRef Id="AppFiles" />
+    </Feature>
+
+    <!-- Icon and info shown under Settings > Apps -->
+    <Icon Id="Klimaatatlas.exe" SourceFile="$(AppPublishDir)Klimaatatlas.exe" />
+    <Property Id="ARPPRODUCTICON" Value="Klimaatatlas.exe" />
+  </Package>
+
+  <Fragment>
+    <ComponentGroup Id="AppFiles" Directory="INSTALLFOLDER">
+      <Component Id="MainExecutable">
+        <File Id="KlimaatatlasExe" Source="$(AppPublishDir)Klimaatatlas.exe" KeyPath="yes">
+          <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Klimaatatlas" WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="Klimaatatlas.exe" />
+          <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="Klimaatatlas" WorkingDirectory="INSTALLFOLDER" Advertise="yes" Icon="Klimaatatlas.exe" />
+        </File>
+      </Component>
+
+      <!-- All other files from the publish folder (runtime, Avalonia, SQLite, ...), including subfolders -->
+      <Files Include="$(AppPublishDir)**">
+        <Exclude Files="$(AppPublishDir)Klimaatatlas.exe" />
+      </Files>
+    </ComponentGroup>
+  </Fragment>
+</Wix>
