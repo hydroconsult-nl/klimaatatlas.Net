@@ -100,6 +100,9 @@ Er zijn twee solutions:
 * **`Klimaatatlas.Installers.slnx`** – hetzelfde plus de Windows-installers (MSI en MSIX). Alleen te bouwen
   met Visual Studio op Windows; zie [RELEASE.md](RELEASE.md).
 
+Een ondertekende Windows-installer (MSI) maak je met één opdracht, ook zonder Visual Studio:
+`.\build-release.ps1 2.0.1` (zie [RELEASE.md](RELEASE.md)).
+
 ```bash
 dotnet test Klimaatatlas.slnx
 ```
