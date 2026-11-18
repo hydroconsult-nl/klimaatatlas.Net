@@ -4,3 +4,19 @@ publish/
 *.user
 .vs/
 TestResults/
+
+# Windows installers: build output
+SetupKlimaatAtlas/Debug/
+SetupKlimaatAtlas/Release/
+AppPackages/
+BundleArtifacts/
+*.assets.cache
+
+# diagnostics file written next to the configuration on every run
+*.dia
+
+# personal publish profile (machine-specific signing settings)
+src/Klimaatatlas.Gui/Properties/PublishProfiles/ClickOnceProfile.pubxml
+
+# MSI built by build-release.ps1
+dist/
